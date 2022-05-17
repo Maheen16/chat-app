@@ -93,8 +93,8 @@ export default function LoginPage({ snackBarOpen }) {
         .then((res) => {
           console.log(res.data);
           setIsLoading(false);
-          window.localStorage.setItem("userId", res.data.userId);
-          window.localStorage.setItem("room_Id", res.data.room_Id);
+          localStorage.setItem("userId", res.data.userId);
+          localStorage.setItem("room_Id", res.data.room_Id);
           // navigate(`/chat/${res.data.room_Id}/${res.data.userId}`);
           navigate(`/chat`);
         })
