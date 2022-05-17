@@ -7,7 +7,7 @@ import { Box, Paper, InputBase, IconButton } from "@mui/material";
 import ArrowDownwardIcon from "@mui/icons-material/ArrowDownward";
 import SendIcon from "@mui/icons-material/Send";
 import axios from "axios";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 export default function Chat() {
   //---- states
   const [currentMessage, setCurrentMessage] = useState("");
@@ -18,6 +18,7 @@ export default function Chat() {
   const bottom = useRef(null);
   const chatBody = useRef(null);
   const params = useParams();
+  const navigate = useNavigate();
   // console.log(params);
 
   // ---- arrow visibility set ----
@@ -39,7 +40,14 @@ export default function Chat() {
   }, [messageList]);
 
   useEffect(() => {
-    fetchMessage();
+    let isUserId = window.localStorage.getItem("userId");
+    let isRoomId = window.localStorage.getItem("room_Id");
+    console.log(isUserId, isRoomId);
+    if (isUserId && isRoomId) {
+      fetchMessage();
+    } else {
+      navigate("/login");
+    }
   }, []);
 
   window.addEventListener("scroll", () => console.log("scrolled"));
