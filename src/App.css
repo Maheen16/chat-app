@@ -36,7 +36,7 @@
 
 .message {
   height: auto;
-  padding: 10px;
+  /* padding: 10px; */
   display: flex;
   /* justify-content: flex-end; */
 }
@@ -80,13 +80,16 @@
 #other .message-content {
   justify-content: flex-end;
   background-color: cornflowerblue;
+  justify-content: flex-start;
 }
 
-/* #other .message-meta {
-  justify-content: flex-end;
+#other .message-meta {
   margin-right: 5px;
-} */
-
+}
+.message-meta {
+  width: 100%;
+  display: flex;
+}
 .message-meta p {
   font-size: 12px;
   margin-left: 10px;

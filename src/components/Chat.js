@@ -3,11 +3,12 @@ import AppBar from "@mui/material/AppBar";
 import Toolbar from "@mui/material/Toolbar";
 import Typography from "@mui/material/Typography";
 import "../App.css";
-import { Box, Paper, InputBase, IconButton } from "@mui/material";
+import { Box, Paper, InputBase, IconButton, Button } from "@mui/material";
 import ArrowDownwardIcon from "@mui/icons-material/ArrowDownward";
 import SendIcon from "@mui/icons-material/Send";
 import axios from "axios";
 import { useNavigate, useParams } from "react-router-dom";
+import moment from "moment";
 export default function Chat() {
   //---- states
   const [currentMessage, setCurrentMessage] = useState("");
@@ -32,6 +33,7 @@ export default function Chat() {
 
   // ---- to set the scroll to bottom ----
   const scrollToBottom = () => {
+    console.log("scrolltobottom");
     bottom.current?.scrollIntoView({ behavior: "smooth" });
   };
 
@@ -42,7 +44,7 @@ export default function Chat() {
   useEffect(() => {
     let isUserId = window.localStorage.getItem("userId");
     let isRoomId = window.localStorage.getItem("room_Id");
-    console.log(isUserId, isRoomId);
+    // console.log(isUserId, isRoomId);
     if (isUserId && isRoomId) {
       fetchMessage();
     } else {
@@ -58,8 +60,8 @@ export default function Chat() {
       axios
         .post("http://192.168.1.89:8000/message/save", {
           message: currentMessage,
-          room_Id: params.roomId,
-          userId: params.userId,
+          room_Id: localStorage.getItem("room_Id"),
+          userId: localStorage.getItem("userId"),
         })
         .then(() => {
           fetchMessage();
@@ -72,7 +74,9 @@ export default function Chat() {
   };
   const fetchMessage = () => {
     axios
-      .get(`http://192.168.1.89:8000/message/${params.roomId}`)
+      .get(
+        `http://192.168.1.89:8000/message/${localStorage.getItem("room_Id")}`
+      )
       .then((response) => {
         if (response.data.length) {
           setMessageList(response.data);
@@ -82,6 +86,11 @@ export default function Chat() {
       .catch((err) => {
         console.log(err);
       });
+  };
+
+  const logout = () => {
+    localStorage.clear();
+    navigate("/login");
   };
   // let userName = localStorage.getItem("username");
   return (
@@ -100,6 +109,13 @@ export default function Chat() {
                 ChatApp
               </Typography>
             </Toolbar>
+            <Button
+              onClick={logout}
+              variant="contained"
+              sx={{ backgroundColor: "white", color: "#236282", mr: 3 }}
+            >
+              LogOut
+            </Button>
           </Box>
         </AppBar>
       </Box>
@@ -128,6 +144,7 @@ export default function Chat() {
           <Box className="chat-header">
             <h4>Live Chat</h4>
           </Box>
+
           <Box
             className="chat-body message-container"
             ref={chatBody}
@@ -138,15 +155,24 @@ export default function Chat() {
                 <Box
                   key={index}
                   className="message"
-                  id={messageContent.userId === params.userId ? "you" : "other"}
+                  id={
+                    messageContent.userId === localStorage.getItem("userId")
+                      ? "you"
+                      : "other"
+                  }
                 >
-                  <Box>
+                  <Box sx={{ p: 1 }}>
                     <Box className="message-content">
-                      <p>{messageContent.message}</p>
+                      <Typography>{messageContent.message}</Typography>
                     </Box>
-                    {/* <Box className="message-meta">
-                      <p id="author">{userName}</p>
-                    </Box> */}
+                    <Box className="message-meta">
+                      <Typography id="author">
+                        {messageContent.user_name}
+                      </Typography>
+                      <Typography id="time">
+                        {moment(messageContent.createdAt).calendar()}
+                      </Typography>
+                    </Box>
                   </Box>
                 </Box>
               );

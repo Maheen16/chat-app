@@ -48,8 +48,8 @@ function App() {
           path="/login"
           element={<LoginPage snackBarOpen={handleOpen} />}
         />
-        {/* <Route path="/chat/:roomId/:userId" element={<Chat />} /> */}
-        <Route path="/chat" element={<Chat />} />
+        <Route path="/chat/:roomId/:userId" element={<Chat />} />
+        {/* <Route path="/chat" element={<Chat />} /> */}
       </Routes>
     </div>
   );

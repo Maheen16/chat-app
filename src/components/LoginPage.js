@@ -95,8 +95,8 @@ export default function LoginPage({ snackBarOpen }) {
           setIsLoading(false);
           localStorage.setItem("userId", res.data.userId);
           localStorage.setItem("room_Id", res.data.room_Id);
-          // navigate(`/chat/${res.data.room_Id}/${res.data.userId}`);
-          navigate(`/chat`);
+          navigate(`/chat/${res.data.room_Id}/${res.data.userId}`);
+          // navigate(`/chat`);
         })
         .catch((err) => {
           if (err.response.status === 500) {

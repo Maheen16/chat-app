@@ -100,7 +100,7 @@ export default function SignUp({ snackBarOpen }) {
             }}
           >
             <Typography>Already having an account?</Typography>
-            <Link to="login" style={{ textDecoration: "none" }}>
+            <Link to="/login" style={{ textDecoration: "none" }}>
               <Button type="submit">LogIn</Button>
             </Link>
           </Box>
