@@ -9,11 +9,17 @@ import SendIcon from "@mui/icons-material/Send";
 import axios from "axios";
 import { useNavigate, useParams } from "react-router-dom";
 import moment from "moment";
+import io from "socket.io-client";
+
+const ENDPOINT = "http://192.168.1.89:8000";
+let socket;
 export default function Chat() {
   //---- states
   const [currentMessage, setCurrentMessage] = useState("");
   const [messageList, setMessageList] = useState([]);
   const [visible, setVisible] = useState(false);
+  const [socketConnected, setSocketConnected] = useState(false);
+  const [userConnected, setuserConnected] = useState("");
 
   // --- hooks
   const bottom = useRef(null);
@@ -21,21 +27,21 @@ export default function Chat() {
   const params = useParams();
   const navigate = useNavigate();
   // console.log(params);
+  useEffect(() => {
+    socket = io(ENDPOINT);
+    socket.emit("setup", window.localStorage.getItem("userId")); //what server expecting
+    socket.on("connected", () => setSocketConnected(true));
+    socket.on("broadcast", (res) => {
+      setuserConnected(res);
+    });
+  }, []);
 
-  // ---- arrow visibility set ----
-  const toggleVisible = (e) => {
-    const scrolled = chatBody.current?.scrollTop; //500
-    const maxScrolled = e.target.scrollHeight;
-    let isMax = maxScrolled - scrolled <= 316;
-    // console.log(isMax);
-    setVisible(!isMax);
-  };
-
-  // ---- to set the scroll to bottom ----
-  const scrollToBottom = () => {
-    console.log("scrolltobottom");
-    bottom.current?.scrollIntoView({ behavior: "smooth" });
-  };
+  useEffect(() => {
+    socket.on("message recieved", (newMessageRecieved) => {
+      console.log("newMessageRecieved,", newMessageRecieved);
+      setMessageList(newMessageRecieved);
+    });
+  });
 
   useEffect(() => {
     scrollToBottom();
@@ -52,7 +58,22 @@ export default function Chat() {
     }
   }, []);
 
-  window.addEventListener("scroll", () => console.log("scrolled"));
+  // window.addEventListener("scroll", () => console.log("scrolled"));
+
+  // ---- arrow visibility set ----
+  const toggleVisible = (e) => {
+    const scrolled = chatBody.current?.scrollTop; //500
+    const maxScrolled = e.target.scrollHeight;
+    let isMax = maxScrolled - scrolled <= 316;
+    // console.log(isMax);
+    setVisible(!isMax);
+  };
+
+  // ---- to set the scroll to bottom ----
+  const scrollToBottom = () => {
+    // console.log("scrolltobottom");
+    bottom.current?.scrollIntoView({ behavior: "smooth" });
+  };
 
   //  ---- stack of messsage on screen ----
   const sendMessage = () => {
@@ -63,8 +84,10 @@ export default function Chat() {
           room_Id: localStorage.getItem("room_Id"),
           userId: localStorage.getItem("userId"),
         })
-        .then(() => {
-          fetchMessage();
+        .then((res) => {
+          // console.log(res.data, "API response");
+          socket.emit("new message", res.data);
+          setMessageList(res.data);
         })
         .catch((err) => {
           console.log(err);
@@ -78,10 +101,13 @@ export default function Chat() {
         `http://192.168.1.89:8000/message/${localStorage.getItem("room_Id")}`
       )
       .then((response) => {
-        if (response.data.length) {
-          setMessageList(response.data);
-          // console.log(response.data);
-        }
+        socket.emit("join chat", {
+          room_id: localStorage.getItem("room_Id"),
+          msgData: response.data,
+          userId: window.localStorage.getItem("userId"),
+        });
+        // socket.emit("new message", response.data);
+        setMessageList(response.data);
       })
       .catch((err) => {
         console.log(err);
@@ -92,7 +118,6 @@ export default function Chat() {
     localStorage.clear();
     navigate("/login");
   };
-  // let userName = localStorage.getItem("username");
   return (
     <Box sx={{ flexGrow: 1 }}>
       <Box>
@@ -150,13 +175,16 @@ export default function Chat() {
             ref={chatBody}
             onScroll={toggleVisible}
           >
+            <Typography sx={{ textAlign: "center" }}>
+              {userConnected}
+            </Typography>
             {messageList.map((messageContent, index) => {
               return (
                 <Box
                   key={index}
                   className="message"
                   id={
-                    messageContent.userId === localStorage.getItem("userId")
+                    messageContent?.userId === localStorage.getItem("userId")
                       ? "you"
                       : "other"
                   }

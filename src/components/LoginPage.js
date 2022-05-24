@@ -91,7 +91,7 @@ export default function LoginPage({ snackBarOpen }) {
           roomId,
         })
         .then((res) => {
-          console.log(res.data);
+          // console.log(res.data);
           setIsLoading(false);
           localStorage.setItem("userId", res.data.userId);
           localStorage.setItem("room_Id", res.data.room_Id);
@@ -107,7 +107,7 @@ export default function LoginPage({ snackBarOpen }) {
             snackBarOpen("");
           }
           setIsLoading(false);
-          console.log(err);
+          // console.log(err);
         });
       // console.log("redirect");
     }
