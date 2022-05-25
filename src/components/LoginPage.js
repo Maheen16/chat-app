@@ -7,6 +7,8 @@ import {
   Paper,
   CircularProgress,
 } from "@mui/material";
+import FormControlLabel from "@mui/material/FormControlLabel";
+import Switch from "@mui/material/Switch";
 import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
 
@@ -18,6 +20,8 @@ export default function LoginPage({ snackBarOpen }) {
   const [errorId, setErrorId] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState("");
+  const [checked, setChecked] = useState(false);
+  const [showRoomIdField, setshowRoomIdField] = useState(true);
 
   //---- hooks ----
   const navigate = useNavigate();
@@ -32,7 +36,18 @@ export default function LoginPage({ snackBarOpen }) {
     }
   };
 
-  // ---- room id change ----
+  // controll roomId Field
+  const handleChange = (event) => {
+    let { checked } = event.target;
+    // console.log(event.target.checked);
+    setChecked(checked);
+    if (checked) {
+      setshowRoomIdField(false);
+    } else {
+      setshowRoomIdField(true);
+    }
+  };
+  // ---- room id handler ----
   const handleIdChange = (e) => {
     let error = false;
     let errorMessage = "";
@@ -70,45 +85,68 @@ export default function LoginPage({ snackBarOpen }) {
       setErrorName(true);
       flag = true;
     }
-    if (roomId === "") {
-      setErrorMsg("room id is required");
-      setErrorId(true);
-      flag = true;
-    } else {
-      if (!alphaExp.test(roomId)) {
+
+    if (showRoomIdField) {
+      if (roomId === "") {
+        setErrorMsg("room id is required");
+        setErrorId(true);
         flag = true;
-        // console.log(roomId, "number is not valid");
-      }
-      if (roomId.length !== 4) {
-        flag = true;
+      } else {
+        if (!alphaExp.test(roomId)) {
+          flag = true;
+          // console.log(roomId, "number is not valid");
+        }
+        if (roomId.length !== 4) {
+          flag = true;
+        }
       }
     }
     if (!flag) {
       setIsLoading(true);
-      axios
-        .post("http://192.168.1.89:8000/user/login", {
-          username: user,
-          roomId,
-        })
-        .then((res) => {
-          // console.log(res.data);
-          setIsLoading(false);
-          localStorage.setItem("userId", res.data.userId);
-          localStorage.setItem("room_Id", res.data.room_Id);
-          navigate(`/chat/${res.data.room_Id}/${res.data.userId}`);
-          // navigate(`/chat`);
-        })
-        .catch((err) => {
-          if (err.response.status === 500) {
-            snackBarOpen("Internal Server Error");
-          } else if (err.response.status === 422) {
-            snackBarOpen("you have not signed up.please sign up");
-          } else {
-            snackBarOpen("");
-          }
-          setIsLoading(false);
-          // console.log(err);
-        });
+
+      if (!showRoomIdField) {
+        setIsLoading(false);
+        localStorage.setItem("username", user);
+        axios
+          .get(`http://192.168.1.89:8000/user/${user}`)
+          .then((res) => {
+            if (!res.isExist) {
+              navigate(`/rooms/${user}`);
+            }
+            console.log(res.data);
+          })
+          .catch((err) => {
+            const { message } = err.response.data;
+            snackBarOpen(message);
+            // user exist logic goes here by API
+            console.log(err.response.data);
+          });
+      } else {
+        axios
+          .post("http://192.168.1.89:8000/user/login", {
+            username: user,
+            roomId,
+          })
+          .then((res) => {
+            console.log(res.data);
+            setIsLoading(false);
+            localStorage.setItem("userId", res.data.userId);
+            localStorage.setItem("room_Id", res.data.room_Id);
+            navigate(`/chat/${res.data.room_Id}/${res.data.userId}`);
+          })
+          .catch((err) => {
+            console.log(err);
+            snackBarOpen(err.message);
+            if (err.response.status === 500) {
+              snackBarOpen("Internal Server Error");
+            } else if (err.response.status === 422) {
+              snackBarOpen("you have not signed up.please sign up");
+            } else {
+              snackBarOpen("");
+            }
+            setIsLoading(false);
+          });
+      }
       // console.log("redirect");
     }
   };
@@ -130,7 +168,7 @@ export default function LoginPage({ snackBarOpen }) {
           justifyContent: "center",
           p: 4,
           width: "30%",
-          height: "470px",
+          height: "500px",
         }}
       >
         <Box
@@ -146,6 +184,19 @@ export default function LoginPage({ snackBarOpen }) {
           </Typography>
           <Typography variant="body1">Sign In</Typography>
           <Typography variant="body1">Fill Below Information</Typography>
+          <FormControlLabel
+            control={
+              <Switch
+                checked={checked}
+                onChange={handleChange}
+                sx={{
+                  display: "flex",
+                  justifyContent: "center",
+                }}
+              />
+            }
+            label="login with existing roomIds"
+          />
           <form onSubmit={logIn}>
             <TextField
               fullWidth
@@ -160,20 +211,23 @@ export default function LoginPage({ snackBarOpen }) {
               sx={{ my: 2 }}
               onChange={handleNameChange}
             />
-            <TextField
-              fullWidth
-              value={roomId}
-              error={errorId}
-              id="standard-basic"
-              label="Room Id"
-              helperText={errorMsg}
-              variant="outlined"
-              size="small"
-              placeholder="room id"
-              sx={{ mb: 2 }}
-              onChange={handleIdChange}
-            />
-            <Typography variant="body1" sx={{ my: 2 }}>
+            {showRoomIdField && (
+              <TextField
+                fullWidth
+                value={roomId}
+                error={errorId}
+                id="standard-basic"
+                label="Room Id"
+                helperText={errorMsg}
+                variant="outlined"
+                size="small"
+                placeholder="room id"
+                sx={{ mb: 2 }}
+                onChange={handleIdChange}
+              />
+            )}
+
+            <Typography variant="body1" sx={{ my: 1 }}>
               Start chatting by clicking on :) below button and have fun !
             </Typography>
             <Button
@@ -181,7 +235,7 @@ export default function LoginPage({ snackBarOpen }) {
               disabled={isLoading}
               variant="contained"
               color="primary"
-              sx={{ mt: 3 }}
+              sx={{ mt: 1 }}
               type="submit"
             >
               {isLoading ? <CircularProgress /> : "LogIn"}

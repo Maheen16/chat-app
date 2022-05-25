@@ -6,6 +6,7 @@ import Chat from "./components/Chat";
 import LoginPage from "./components/LoginPage";
 import SignUp from "./components/SignUp";
 import CloseIcon from "@mui/icons-material/Close";
+import ShowRoomPage from "./components/ShowRoomPage";
 
 function App() {
   const [open, setOpen] = useState(false);
@@ -48,6 +49,7 @@ function App() {
           path="/login"
           element={<LoginPage snackBarOpen={handleOpen} />}
         />
+        <Route path="/rooms/:username" element={<ShowRoomPage />} />
         <Route path="/chat/:roomId/:userId" element={<Chat />} />
         {/* <Route path="/chat" element={<Chat />} /> */}
       </Routes>

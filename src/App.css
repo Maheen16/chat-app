@@ -2,55 +2,41 @@
   background-color: #236282 !important;
 }
 
-.chat-window p {
-  margin: 0;
-}
 .chat-header {
   height: 45px;
   display: block;
   background: #236282;
-  position: relative;
   cursor: pointer;
 }
 .chat-header h4 {
-  display: block;
   padding-left: 1em;
   color: #fff;
   line-height: 0px !important;
 }
-.chat-header {
-  display: flex;
-  justify-content: space-between;
-}
+
 .chat-window .chat-body {
   height: calc(450px - (45px + 70px));
-  position: relative;
 }
+
 .message-container {
   width: 100%;
   position: relative;
   height: 100%;
-  /* overflow-y: scroll; */
   overflow-x: hidden;
 }
 
 .message {
   height: auto;
-  /* padding: 10px; */
+  width: auto;
   display: flex;
-  /* justify-content: flex-end; */
 }
 
 .message-content {
   width: auto;
   height: auto;
-  position: relative;
-  max-width: 200px;
   background-color: #43a047;
   border-radius: 5px;
   color: white;
-  display: flex;
-  align-items: center;
   padding: 7px;
 }
 .message-container button {
@@ -66,16 +52,15 @@
 
 #other {
   justify-content: flex-start;
-  /* background-color: #236282; */
 }
-/* #you .message-content {
+#you .message-content {
   justify-content: flex-end;
-} */
-/* 
+}
+
 #you .message-meta {
   justify-content: flex-start;
   margin-left: 5px;
-} */
+}
 
 #other .message-content {
   justify-content: flex-end;
