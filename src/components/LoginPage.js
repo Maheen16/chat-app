@@ -118,7 +118,6 @@ export default function LoginPage({ snackBarOpen }) {
           <Typography variant="body1">Fill Below Information</Typography>
           <Formik
             initialValues={initialValues}
-            onChange={({ nextVal }) => setCurrentValues(nextVal)}
             onSubmit={onSubmit}
             enableReinitialize={true}
             validationSchema={validationSchema}
