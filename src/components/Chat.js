@@ -38,7 +38,7 @@ export default function Chat() {
 
   useEffect(() => {
     socket.on("message recieved", (newMessageRecieved) => {
-      console.log("newMessageRecieved,", newMessageRecieved);
+      // console.log("newMessageRecieved,", newMessageRecieved);
       setMessageList(newMessageRecieved);
     });
   });

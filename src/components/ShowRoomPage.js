@@ -31,18 +31,18 @@ function ShowRoomPage() {
         if (res.status) {
           let { all_roomsId, _id } = res.data.data;
           localStorage.setItem("userId", _id);
-          console.log(_id);
+          // console.log(_id);
           setRooms(all_roomsId);
         }
       })
       .catch((err) => {
-        console.log(err);
+        // console.log(err);
       });
   }, []);
 
   // navigating to particular chat
   const goToChat = (roomId) => {
-    console.log("clicked", roomId);
+    // console.log("clicked", roomId);
     localStorage.setItem("room_Id", roomId);
     navigate(
       `/chat/${localStorage.getItem("room_Id")}/${localStorage.getItem(
@@ -107,7 +107,7 @@ function ShowRoomPage() {
               <List>
                 {rooms.map((curElm, index) => {
                   return (
-                    <Box key={index}>
+                    <Box key={curElm.RoomId}>
                       <ListItemButton onClick={() => goToChat(curElm.RoomId)}>
                         <ListItemText
                           sx={{ fontWeight: "bold" }}

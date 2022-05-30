@@ -113,13 +113,13 @@ export default function LoginPage({ snackBarOpen }) {
             if (!res.isExist) {
               navigate(`/rooms/${user}`);
             }
-            console.log(res.data);
+            // console.log(res.data);
           })
           .catch((err) => {
             const { message } = err.response.data;
             snackBarOpen(message);
             // user exist logic goes here by API
-            console.log(err.response.data);
+            // console.log(err.response.data);
           });
       } else {
         axios
@@ -128,7 +128,7 @@ export default function LoginPage({ snackBarOpen }) {
             roomId,
           })
           .then((res) => {
-            console.log(res.data);
+            // console.log(res.data);
             setIsLoading(false);
             localStorage.setItem("userId", res.data.userId);
             localStorage.setItem("room_Id", res.data.room_Id);
