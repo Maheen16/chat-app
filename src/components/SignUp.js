@@ -1,31 +1,24 @@
 import { Box, Button, Paper, TextField, Typography } from "@mui/material";
 import axios from "axios";
+import * as yup from "yup";
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { useFormik } from "formik";
 
 export default function SignUp({ snackBarOpen }) {
-  const [username, setUsername] = useState("");
-  const [isUserNameValid, setIsUserNameValid] = useState(false);
-
   const navigate = useNavigate();
 
-  // ---- username setup ----
-  const handleUserName = (e) => {
-    setUsername(e.target.value);
-    if (e.target.value === "") {
-      setIsUserNameValid(true);
-    } else {
-      setIsUserNameValid(false);
-    }
-  };
+  // validation of textField by yup library
+  let validationSchema = yup.object({
+    username: yup.string().required("cannot be empty"),
+  });
 
-  // ---- handling sign up with snackbar ----
-  const signUp = (e) => {
-    e.preventDefault();
-    if (username !== "") {
+  // API calling with 422 error handling
+  const signUp = (values) => {
+    if (values.username) {
       axios
         .post("http://192.168.1.89:8000/user/signup", {
-          username: username,
+          username: values.username,
         })
         .then((res) => {
           console.log(res.data);
@@ -33,14 +26,21 @@ export default function SignUp({ snackBarOpen }) {
         })
         .catch((err) => {
           if (err.response.status === 422) {
-            // console.log(err.response.data.validation_error.message);
             snackBarOpen(err.response.data.validation_error.message);
           }
         });
-    } else {
-      setIsUserNameValid(true);
     }
   };
+
+  // formik setup
+  const formik = useFormik({
+    initialValues: {
+      username: "",
+    },
+    onSubmit: signUp,
+    validationSchema,
+  });
+
   return (
     <Box
       sx={{
@@ -60,7 +60,7 @@ export default function SignUp({ snackBarOpen }) {
             justifyContent: "space-between",
           }}
         >
-          <form onSubmit={signUp}>
+          <form onSubmit={formik.handleSubmit}>
             <Box sx={{ textAlign: "center", py: 3 }}>
               <Typography
                 variant="h4"
@@ -72,17 +72,17 @@ export default function SignUp({ snackBarOpen }) {
               <Typography sx={{ fontWeight: "bold", pb: 3 }}>
                 Create Your Account. It's very easy.
               </Typography>
+
               <TextField
-                error={isUserNameValid}
-                helperText={isUserNameValid ? "please enter name" : ""}
-                value={username}
-                onChange={handleUserName}
-                fullWidth
+                name="username"
                 variant="outlined"
-                size="small"
-                id="outlined-basic"
                 label="Username"
-                placeholder="samjohnson"
+                fullWidth
+                error={Boolean(formik.errors.username)}
+                helperText={
+                  formik.errors.username ? formik.errors.username : ""
+                }
+                {...formik.getFieldProps("username")}
               />
             </Box>
             <Box>
